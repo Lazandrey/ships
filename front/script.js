@@ -1,7 +1,53 @@
 const shipsWrapper = document.getElementById("ships-wrapper");
+const params = new URLSearchParams(document.location.search);
+let qty = params.get("qty");
+let type = params.get("type");
+let sort = params.get("sort");
+if (!qty) {
+  qty = "";
+}
+if (!type) {
+  type = "";
+}
+if (!sort) {
+  sort = "";
+}
+
+const getAllSh = async () => {
+  const response = await fetch("https://api.spacexdata.com/v4/ships");
+  const data = await response.json();
+  return data;
+};
+
+const copyShip = async () => {
+  const ships = await getAllSh();
+  ships.forEach(async (ship) => {
+    const result = await fetch("http://localhost:3000/ship", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        id: ship.id,
+        name: ship.name,
+        type: ship.type,
+        home_port: ship.home_port,
+        image: ship.image,
+        roles: ship.roles,
+        year_built: ship.year_built,
+        mass_kg: ship.mass_kg,
+      }),
+    });
+    const data = await result.json();
+    console.log(data.response);
+  });
+};
 
 const getAllShips = async () => {
-  const response = await fetch("http://localhost:3000/ships");
+  const response = await fetch(
+    `http://localhost:3000/ships?qty=${qty}&type=${type}&sort=${sort}`
+  );
   const data = await response.json();
   return data.ships;
 };
@@ -33,10 +79,13 @@ const buildShips = (ships) => {
 
       if (ship.image) {
         shipImg.src = ship.image;
-        shipCard.setAttribute("class", `ship ${getShipClass(ship.year_built)}`);
-        shipCard.append(shipName, shipType, shipYear, shipMass, shipImg);
-        shipsWrapper.append(shipCard);
+      } else {
+        shipImg.src =
+          "https://banner2.cleanpng.com/20180823/fwt/kisspng-clip-art-ferry-boat-desktop-wallpaper-ship-uladzimer-1713950577462.webp";
       }
+      shipCard.setAttribute("class", `ship ${getShipClass(ship.year_built)}`);
+      shipCard.append(shipName, shipType, shipYear, shipMass, shipImg);
+      shipsWrapper.append(shipCard);
       shipCard.addEventListener("click", () => {
         console.log(ship.name);
       });
@@ -45,6 +94,7 @@ const buildShips = (ships) => {
 
 const startApp = async () => {
   const ships = await getAllShips();
+  // copyShip();
 
   buildShips(ships);
 };

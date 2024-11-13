@@ -24,7 +24,12 @@ const GET_ALL_SHIPS = async (req, res) => {
       options.limit = Number(req.query.qty);
     }
 
+    if (req.query.sort) {
+      options.sort = `-${req.query.sort}`;
+    }
+    console.log(query, options);
     const results = await shipModel.find(query, {}, options);
+
     if (results.length === 0) {
       return res.status(200).json({ responce: "Data not exist" });
     }
