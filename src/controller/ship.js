@@ -22,8 +22,6 @@ const GET_ALL_SHIPS = async (req, res) => {
 
     if (req.query.qty) {
       options.limit = Number(req.query.qty);
-    } else {
-      options.limit = 10;
     }
 
     const results = await shipModel.find(query, {}, options);
